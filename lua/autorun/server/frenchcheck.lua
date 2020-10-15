@@ -1,0 +1,1 @@
+include("frenchcheck/core.lua")
