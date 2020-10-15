@@ -1,7 +1,3 @@
---Includes
-include("frenchcheck/confige.lua")
-
-
 --Localizations
 local Fetch = http.Fetch
 local JsonToTable = util.JSONToTable
