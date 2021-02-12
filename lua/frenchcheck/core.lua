@@ -3,7 +3,9 @@ local Fetch = http.Fetch
 local JsonToTable = util.JSONToTable
 local error = error
 local whitelist = frenchcheck.WhitelistMode
-
+local gameKickID = game.KickID
+local utilSteamIDFrom64 = util.SteamIDFrom64
+local timerSimple = timer.Simple
 
 --Variables and Tables
 local failures = 0
@@ -11,17 +13,15 @@ local cache = {}--Cache it incase a frenchy tries spam joining in anger(they ten
 
 
 --Functions
-local function ipGetInfo(pl)
-	local ip = pl:IPAddress()
-
+local function ipGetInfo(ip,id)
 	if cache[ip] then
 		if whitelist then
 			if cache[ip].countryCode ~= "FR" or cache[ip].country ~= "France" then
-				pl:Kick("We don't take kindly to people who don't take kindly round here.")
+				gameKickID(id,"We don't take kindly to people who don't take kindly round here.")
 			end
 		else
 			if cache[ip].countryCode == "FR" or cache[ip].country == "France" then
-				pl:Kick("We don't take kindly to people who don't take kindly round here.")
+				gameKickID(id,"We don't take kindly to people who don't take kindly round here.")
 			end
 		end
 	else
@@ -35,20 +35,20 @@ local function ipGetInfo(pl)
 				
 				if whitelist then
 					if cache[ip].countryCode ~= "FR" or cache[ip].country ~= "France" then
-						pl:Kick("We don't take kindly to people who don't take kindly round here.")
+						gameKickID(id,"We don't take kindly to people who don't take kindly round here.")
 					end
 				else
 					if cache[ip].countryCode == "FR" or cache[ip].country == "France" then
-						pl:Kick("We don't take kindly to people who don't take kindly round here.")
+						gameKickID(id,"We don't take kindly to people who don't take kindly round here.")
 					end
 				end
 			end
 		end,function()
 			if failures <= 5 then
-				timer.Simple(5,function()
+				timerSimple(5,function()
 					failures = failures+1
 
-					ipGetInfo(ip)
+					ipGetInfo(ip,id)
 				end)
 			end
 		end)
@@ -57,5 +57,8 @@ end
 
 
 --Hooks
-hook.Add("PlayerInitialSpawn","Baguette_Killer",ipGetInfo)
+hook.Add("CheckPassword","Baguette_Killer",function(ip,id)
+	ipGetInfo(ip,utilSteamIDFrom64(id))
+end)
+
 
